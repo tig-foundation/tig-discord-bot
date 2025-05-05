@@ -19,6 +19,25 @@ async def handle_satisfiability(ctx):
         latest_height = int(f.read())
     await ctx.send(f"Latest block height is {latest_height}.")
 
+@bot.command(name='hash_thresholds')
+async def handle_hash_thresholds(ctx, height):
+    if not os.path.exists(f"{height}.json"):
+        await ctx.send(f"I haven't saved data for block {height}")
+        return
+    with open(f"{height}.json", "r") as f:
+        challenges = json.load(f)["challenges"]
+    body = []
+    for c in sorted(challenges, key=lambda x: x["id"]):
+        raw = c["block_data"]["hash_threshold"]
+        percent = int(raw, 16) / int("f"*64, 16) * 100
+        body.append([c["details"]["name"], f"{percent:.2f}%"])
+    output = t2a(
+        header=["Challenge", "Hash Threshold (%)"],
+        body=body,
+        style=PresetStyle.thin_compact
+    )
+    await ctx.send(f"**Hash Thresholds:**```\n{output}\n```")
+
 @bot.command(name='satisfiability')
 async def handle_satisfiability(ctx, *heights):
     return await handle_difficulty(ctx, heights, "c001")
