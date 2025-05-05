@@ -1,0 +1,5 @@
+discord
+matplotlib
+numpy
+requests
+table2ascii
